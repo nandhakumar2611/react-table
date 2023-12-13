@@ -55,7 +55,7 @@ const BasicTable = () => {
                                     {tableInst.getHeaderGroups().map(headerGroup => (
                                         <tr key={headerGroup.id}>
                                             {headerGroup.headers.map(header => (
-                                                <th key={header.id} className='px-6 py-3 border'>
+                                                <th key={header.id} colSpan={header.colSpan} className='px-6 py-3 border'>
                                                     {header.isPlaceholder
                                                     ? null
                                                     : flexRender(

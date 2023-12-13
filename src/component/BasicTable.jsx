@@ -11,12 +11,17 @@ const BasicTable = () => {
             header: 'ID'
         },
         {
-            accessorKey: 'first_name',
-            header: 'First Name'
-        },
-        {
-            accessorKey: 'last_name',
-            header: 'Last Name'
+            header: 'Name',
+            columns: [
+                {
+                    accessorKey: 'first_name',
+                    header: 'First Name'
+                },
+                {
+                    accessorKey: 'last_name',
+                    header: 'Last Name'
+                },
+            ]
         },
         {
             accessorKey: 'email',
@@ -51,7 +56,9 @@ const BasicTable = () => {
                                         <tr key={headerGroup.id}>
                                             {headerGroup.headers.map(header => (
                                                 <th key={header.id} className='px-6 py-3 border'>
-                                                    {flexRender(
+                                                    {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
                                                         header.column.columnDef.header,
                                                         header.getContext()
                                                     )}

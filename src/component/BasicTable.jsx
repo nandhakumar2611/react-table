@@ -1,10 +1,13 @@
 import React from 'react'
-import { useReactTable, flexRender, getCoreRowModel } from '@tanstack/react-table'
+import { useReactTable, flexRender, getCoreRowModel, getSortedRowModel } from '@tanstack/react-table'
 import studentData from '../data/students.json'
 import { useMemo } from 'react'
+import { useState } from 'react'
 
 const BasicTable = () => {
-    const data = useMemo(() => studentData, [])
+    
+    const [sorting, setsorting] = useState([]);
+    const data = useMemo(() => studentData, []);
     const columns = [
         {
             accessorKey: 'id',
@@ -35,8 +38,17 @@ const BasicTable = () => {
             accessorKey: 'phone_number',
             header: 'Phone Number'
         }
-    ]
-    const tableInst = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() })
+    ];
+    const tableInst = useReactTable({ 
+        data, 
+        columns, 
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            sorting: sorting,
+        },
+        onSortingChange: setsorting,
+     })
     return (
         <>
             <section className="py-1 bg-blueGray-50">
@@ -55,13 +67,25 @@ const BasicTable = () => {
                                     {tableInst.getHeaderGroups().map(headerGroup => (
                                         <tr key={headerGroup.id}>
                                             {headerGroup.headers.map(header => (
-                                                <th key={header.id} colSpan={header.colSpan} className='px-6 py-3 border'>
-                                                    {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
+                                                <th 
+                                                    key={header.id} 
+                                                    colSpan={header.colSpan} 
+                                                    onClick={header.column.getToggleSortingHandler()}
+                                                    className='px-6 py-3 border'
+                                                >
+                                                    {header.isPlaceholder ? null:(
+                                                        <div>
+                                                            {flexRender(
+                                                                header.column.columnDef.header,
+                                                                header.getContext()
+                                                            )}
+                                                            {
+                                                                {asc:'⬆️',desc:'⬇️'}[
+                                                                    header.column.getIsSorted() ?? null
+                                                                ]
+                                                            }
+                                                        </div>
+                                                    ) }
                                                 </th>
                                             ))}
                                         </tr>

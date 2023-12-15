@@ -5,6 +5,7 @@ import {
     getCoreRowModel,
     getSortedRowModel,
     getFilteredRowModel,
+
 } from '@tanstack/react-table'
 import studentData from '../data/students.json'
 import { useMemo } from 'react'
@@ -19,7 +20,8 @@ const BasicTable = () => {
     const columns = [
         {
             accessorKey: 'id',
-            header: 'ID'
+            header: 'ID',
+            maxSize: 50,
         },
         {
             header: 'Name',
@@ -51,6 +53,8 @@ const BasicTable = () => {
     const tableInst = useReactTable({
         data,
         columns,
+        enableColumnResizing: true,
+        columnResizeMode: 'onChange',
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -62,26 +66,27 @@ const BasicTable = () => {
         onSortingChange: setSorting,
         onGlobalFilterChange: setFiltering,
         onColumnFiltersChange: setColumnFilters,
+
     })
-    console.log("tableInst", tableInst);
+    // console.log("tableInst", tableInst);
     console.log("tableInst", tableInst.getHeaderGroups());
 
-    const testingFunction = (tableInst) => (
-        tableInst.getHeaderGroups().map((headerGroup, index, arr) => {
-          console.log("Header Group:", headerGroup);
-      
-          return (
-            headerGroup.headers.map(header => {
-              console.log("Header:", header.column.columnDef.header.length);
-              return null;  // You can return any value here
-            })
-          );
-        })
-      );
-      
-      // Call the function
-      testingFunction(tableInst);
-      
+    // const testingFunction = (tableInst) => (
+    //     tableInst.getHeaderGroups().map((headerGroup, index, arr) => {
+    //         console.log("Header Group:", headerGroup);
+
+    //         return (
+    //             headerGroup.headers.map(header => {
+    //                 console.log("Header:", header.column.columnDef.header.length);
+    //                 return null;  // You can return any value here
+    //             })
+    //         );
+    //     })
+    // );
+
+    // // Call the function
+    // testingFunction(tableInst);
+
     return (
         <>
             <section className="py-1 bg-blueGray-50">
@@ -103,54 +108,60 @@ const BasicTable = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="block w-full overflow-x-auto">
-                            <table className='border-collapse border'>
+                        <div className="block w-full max-w-full overflow-x-scroll overflow-y-hidden">
+                            <table
+                                // className='w-full'
+                                style={{ width: tableInst.getCenterTotalSize() }}
+                            >
                                 <thead>
                                     {tableInst.getHeaderGroups().map((headerGroup, index, arr) => (
                                         <React.Fragment key={headerGroup.id}>
-                                            <tr>
-                                                {headerGroup.headers.map(header => (
-                                                    <th
-                                                        key={header.id}
-                                                        colSpan={header.colSpan}
-                                                        onClick={header.column.getToggleSortingHandler()}
-                                                        className='px-6 py-3 border'
-                                                    >
-                                                        {header.isPlaceholder ? null : (
-                                                            <div>
-                                                                {flexRender(
-                                                                    header.column.columnDef.header,
-                                                                    header.getContext()
-                                                                )}
-                                                                {
+                                        <tr 
+                                            key={headerGroup.id}
+                                            className='relative py-2.5 px-1'
+                                        >
+                                            {headerGroup.headers.map(header => (
+                                                <th
+                                                    key={header.id}
+                                                    colSpan={header.colSpan}
+                                                    onClick={header.column.getToggleSortingHandler()}
+                                                    className='border relative py-2.5 px-1'
+                                                    style={{ width: header.getSize() }}
+                                                >
+                                                    {header.isPlaceholder ? null : (
+                                                        <>
+                                                            {flexRender(
+                                                                header.column.columnDef.header,
+                                                                header.getContext()
+                                                            )}
+                                                            {
                                                                     { asc: '⬆️', desc: '⬇️' }[
                                                                     header.column.getIsSorted() ?? null
                                                                     ]
                                                                 }
-                                                                {/* {
-                                                                    header.column.getCanFilter() ? (
-                                                                        <input
-                                                                            className='bg-gray-50 border border-gray-300'
-                                                                            value={(header.column.getFilterValue()) || ''}
-                                                                            onChange={(e) => header.column.setFilterValue(e.target.value)}
-                                                                            placeholder='search...'
-                                                                        />
+                                                        </>
+                                                    )}
 
-                                                                    ): null
-                                                                } */}
-                                                            </div>
-                                                        )}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                            {index === arr.length - 1 && (
-                                                <tr>
+                                                    <div
+                                                        onMouseDown={header.getResizeHandler()}
+                                                        onTouchStart={header.getResizeHandler()}
+                                                        className={`resizer ${header.column.getIsResizing() ? 'isResizing' : null}`}
+                                                    >
+                                                    </div>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                        {index === arr.length - 1 && (
+                                                <tr className='relative '
+                                                // className='relative py-2.5 px-1'
+                                                > 
                                                     {headerGroup.headers.map(header => (
                                                         <th
                                                             key={header.id}
                                                             colSpan={header.colSpan}
-
-                                                            className='py-3 border'
+                                                            className=' table-cell text-left border relative p-0' // className='border relative py-2.5 px-1'
+                                                            // style={{ width: header.getSize() }}
+                                                            // className='py-3 border'
                                                         >
                                                             {header.isPlaceholder ? null : (
                                                                 <div>
@@ -158,7 +169,7 @@ const BasicTable = () => {
                                                                     {
                                                                         header.column.getCanFilter() ? (
                                                                             <input
-                                                                                className={`bg-gray-50 border border-gray-300 w-${header.column.columnDef.header.length}`}
+                                                                                className={`bg-gray-50 border border-gray-300 w-20`}
                                                                                 value={(header.column.getFilterValue()) || ''}
                                                                                 onChange={(e) => header.column.setFilterValue(e.target.value)}
                                                                                 placeholder='search...'
@@ -168,10 +179,17 @@ const BasicTable = () => {
                                                                     }
                                                                 </div>
                                                             )}
+                                                            <div
+                                                        onMouseDown={header.getResizeHandler()}
+                                                        onTouchStart={header.getResizeHandler()}
+                                                        className={`resizer ${header.column.getIsResizing() ? 'isResizing' : null}`}
+                                                    >
+                                                    </div>
                                                         </th>
                                                     ))}
                                                 </tr>
                                             )}
+                                                                                    
                                         </React.Fragment>
                                     ))}
                                 </thead>
@@ -179,7 +197,12 @@ const BasicTable = () => {
                                     {tableInst.getRowModel().rows.map(row => (
                                         <tr key={row.id}>
                                             {row.getVisibleCells().map(cell => (
-                                                <td key={cell.id} className='px-6 py-3 border'>
+                                                <td key={cell.id}
+                                                    className='px-6 py-3 border'
+                                                    style={{
+                                                        width: cell.column.getSize(),
+                                                    }}
+                                                >
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()
